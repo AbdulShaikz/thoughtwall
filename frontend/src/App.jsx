@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import './App.css'
+import API_URL from './api';
 
 function App() {
   const [messages,setMessages] = useState([]);
@@ -13,12 +15,13 @@ function App() {
 
   const fetchMessages = async ()=> {
     try {
-      const response = await fetch('http://localhost:5000/messages');
+      const response = await fetch(`${API_URL}/messages`);
       if(!response.ok) throw new Error('Failed to fetch');
       const data = await response.json();
       setMessages(data);
+      setError(null);
     } catch (error) {
-      setError(error);
+      setError(error.message);
     }
     finally{
       setLoading(false);
@@ -30,7 +33,7 @@ function App() {
     if(!newMessage.trim()) return
 
     try {
-      const response = await fetch('http://localhost:5000/messages',{
+      const response = await fetch(`${API_URL}/messages`,{
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -55,10 +58,10 @@ function App() {
   if(error) return (<p>Error: {error}</p>);
 
   return (
-    <>
-      <section id="center">
-        <h1>ThoughtWall</h1>
+    <div>
+      <nav>ThoughtWall</nav>
 
+      <div className='container'>
         <form onSubmit={handleSubmit}>
           <input type="text" 
             placeholder='type a message...'
@@ -67,18 +70,17 @@ function App() {
           />
           <button type='submit'>Post</button>
         </form>
+      </div>
 
-        <div className="hero">
-          <ul>
-            {messages.map((message) => (
-              <li key={message.id}>
-                {message.text}-<em>{new Date(message.created_at).toLocaleString()}</em>
-            </li>
-          ))}
-          </ul>
+      {messages.map((message) => (
+        <div  key={message.id} className='card'>
+          <p>
+            {message.text}
+          </p>
+          <em>{new Date(message.created_at).toLocaleString()}</em>
         </div>
-      </section>
-    </>
+      ))}
+    </div>
   )
   
 }
